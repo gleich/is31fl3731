@@ -2,7 +2,11 @@
 name = "is31fl3731"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Matt Gleich"]
+categories = ["embedded", "no-std", "hardware-support"]
+description = "Platform agnostic driver for the IS31FL3731 Charlieplex IC"
+license = "MIT"
+repository = "https://github.com/gleich/is31fl3731"
+readme = "README.md"
 
 [dependencies]
