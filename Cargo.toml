@@ -10,3 +10,4 @@ repository = "https://github.com/gleich/is31fl3731"
 readme = "README.md"
 
 [dependencies]
+embedded-hal = "0.2.6"
