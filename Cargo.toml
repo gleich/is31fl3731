@@ -11,3 +11,9 @@ readme = "README.md"
 
 [dependencies]
 embedded-hal = "0.2.6"
+
+[dev-dependencies]
+panic-semihosting = "0.5.6"
+cortex-m-rt = "0.7.1"
+rppal = "0.13.1"
+anyhow = "1.0.53"
