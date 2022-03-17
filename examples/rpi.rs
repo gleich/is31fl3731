@@ -17,10 +17,10 @@ fn main() {
         height: 9,
     };
 
-    ic.setup().expect("Failed to setup device");
+    ic.setup().expect("Failed to setup IC");
 
-    ic.fill(0, 0, false)
-        .expect("Failed to set brightness to full");
+    ic.fill(10, None, 0)
+        .expect("Failed to fill display with brightness of 0");
 }
 
 pub struct IS31FL3731 {
@@ -32,33 +32,33 @@ pub struct IS31FL3731 {
 }
 
 impl IS31FL3731 {
-    pub fn fill(&self, brightness: u8, frame: u8, blink: bool) -> Result<()> {
-        self.write_bank(frame)?;
-        let mut data = vec![brightness; 25].into_boxed_slice();
+    pub fn fill(&self, brightness: u8, blink: Option<bool>, frame: u8) -> Result<()> {
+        self.bank(frame)?;
+        let payload = vec![brightness; 24];
         for row in 0..6 {
-            let _ = mem::replace(data.get_mut(0).unwrap(), addresses::COLOR_OFFSET + row * 24);
-            println!("{:?}", data);
+            let mut data = vec![addresses::COLOR_OFFSET + row * 24];
+            data.extend(&payload);
             self.i2c
-                .block_write(self.address, &data)
-                .context("Failed to block write brightness update")?;
+                .block_write(self.address, &data.into_boxed_slice())?;
         }
-        if blink {
+        if blink.is_some() {
+            let data = if blink.unwrap() { 1 } else { 0 } * 0xFF;
             for col in 0..18 {
-                self.write_register(frame, addresses::BLINK_OFFSET + col, 0xFF)?;
+                self.register(frame, addresses::BLINK_OFFSET + col, data)?;
             }
         }
         Ok(())
     }
 
-    pub fn setup(&mut self) -> Result<()> {
+    pub fn setup(&self) -> Result<()> {
         self.sleep(true)?;
-        thread::sleep(Duration::from_millis(10)); // reset
+        thread::sleep(Duration::from_millis(10));
         self.mode(addresses::PICTURE_MODE)?;
-        self.frame(0, true)?;
+        self.frame(0)?;
         for frame in 0..8 {
-            self.fill(0, frame, false)?;
+            self.fill(0, Some(false), frame)?;
             for col in 0..18 {
-                self.write_register(frame, addresses::ENABLE_OFFSET + col, 0xFF)?;
+                self.register(frame, addresses::ENABLE_OFFSET + col, 0xFF)?;
             }
         }
         self.audio_sync(false)?;
@@ -66,50 +66,52 @@ impl IS31FL3731 {
         Ok(())
     }
 
-    pub fn audio_sync(&self, yes: bool) -> Result<()> {
-        self.write_register(addresses::CONFIG_BANK, addresses::AUDIOSYNC, yes as u8)
-    }
-
-    fn i2c_write_register(&self, register: u8, data: &[u8]) -> Result<()> {
-        let mut buf = vec![register];
-        buf.extend_from_slice(data);
-        self.i2c
-            .block_write(self.address, &buf.into_boxed_slice())?;
+    fn register(&self, bank: u8, register: u8, value: u8) -> Result<()> {
+        self.bank(bank)?;
+        self.i2c_write_reg(register, &[value])?;
         Ok(())
     }
 
-    fn write_register(&self, bank: u8, register: u8, value: u8) -> Result<()> {
-        self.write_bank(bank)?;
-        self.i2c_write_register(register, &[value])?;
-        Ok(())
-    }
-
-    fn write_bank(&self, data: u8) -> Result<()> {
-        Ok(self.i2c_write_register(addresses::BANK_ADDRESS, &[data])?)
-    }
-
-    fn frame(&mut self, frame: u8, show: bool) -> Result<()> {
-        if frame > 8 {
-            bail!("Frame out of range")
-        }
-        self.frame = frame;
-        if show {
-            self.write_register(addresses::CONFIG_BANK, addresses::FRAME, frame)?;
-        }
-        Ok(())
-    }
-
-    fn sleep(&self, value: bool) -> Result<()> {
-        self.write_register(
-            addresses::CONFIG_BANK,
-            addresses::SHUTDOWN,
-            if value { 0 } else { 1 },
-        )?;
+    // TESTED: works
+    fn bank(&self, bank: u8) -> Result<()> {
+        self.i2c_write_reg(addresses::BANK_ADDRESS, &[bank])?;
         Ok(())
     }
 
     fn mode(&self, mode: u8) -> Result<()> {
-        self.write_register(addresses::CONFIG_BANK, addresses::MODE_REGISTER, mode)
+        self.register(addresses::CONFIG_BANK, addresses::MODE_REGISTER, mode)?;
+        Ok(())
+    }
+
+    pub fn frame(&self, frame: u8) -> Result<()> {
+        self.register(addresses::CONFIG_BANK, addresses::FRAME, frame)?;
+        Ok(())
+    }
+
+    fn audio_sync(&self, yes: bool) -> Result<()> {
+        self.register(
+            addresses::CONFIG_BANK,
+            addresses::AUDIOSYNC,
+            if yes { 1 } else { 0 },
+        )?;
+        Ok(())
+    }
+
+    fn sleep(&self, yes: bool) -> Result<()> {
+        self.register(
+            addresses::CONFIG_BANK,
+            addresses::SHUTDOWN,
+            if yes { 0 } else { 1 },
+        )?;
+        Ok(())
+    }
+
+    // TESTED: works
+    fn i2c_write_reg(&self, reg: u8, data: &[u8]) -> Result<()> {
+        let mut buf = vec![reg];
+        buf.extend_from_slice(data);
+        self.i2c.block_write(self.address, &buf)?;
+        Ok(())
     }
 }
 
@@ -127,8 +129,8 @@ mod addresses {
     pub const GAIN: u8 = 0x0B;
     pub const ADC: u8 = 0x0C;
 
-    pub const CONFIG_BANK: u8 = 0xFD;
-    pub const BANK_ADDRESS: u8 = 0x0B;
+    pub const CONFIG_BANK: u8 = 0x0B;
+    pub const BANK_ADDRESS: u8 = 0xFD;
 
     pub const PICTURE_MODE: u8 = 0x00;
     pub const AUTOPLAY_MODE: u8 = 0x08;
