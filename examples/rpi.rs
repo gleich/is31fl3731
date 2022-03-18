@@ -1,15 +1,12 @@
-use std::{mem, thread, time::Duration};
+use std::{thread, time::Duration};
 
-use anyhow::{bail, Context, Result};
+use anyhow::Result;
 use rppal::i2c::I2c;
 
 fn main() {
-    let mut i2c = I2c::new().expect("Failed to init i2c");
+    let i2c = I2c::new().expect("Failed to init i2c");
 
-    i2c.set_slave_address(0x74)
-        .expect("Failed to set slave address");
-
-    let ic = IS31FL3731 {
+    let mut ic = IS31FL3731 {
         address: 0x74,
         i2c,
         frame: 0,
@@ -34,12 +31,10 @@ pub struct IS31FL3731 {
 impl IS31FL3731 {
     pub fn fill(&self, brightness: u8, blink: Option<bool>, frame: u8) -> Result<()> {
         self.bank(frame)?;
-        let payload = vec![brightness; 24];
+        let payload = &[brightness; 24];
         for row in 0..6 {
-            let mut data = vec![addresses::COLOR_OFFSET + row * 24];
-            data.extend(&payload);
             self.i2c
-                .block_write(self.address, &data.into_boxed_slice())?;
+                .block_write(addresses::COLOR_OFFSET + row * 24, payload)?;
         }
         if blink.is_some() {
             let data = if blink.unwrap() { 1 } else { 0 } * 0xFF;
@@ -50,7 +45,10 @@ impl IS31FL3731 {
         Ok(())
     }
 
-    pub fn setup(&self) -> Result<()> {
+    pub fn setup(&mut self) -> Result<()> {
+        self.i2c
+            .set_slave_address(0x74)
+            .expect("Failed to set slave address");
         self.sleep(true)?;
         thread::sleep(Duration::from_millis(10));
         self.mode(addresses::PICTURE_MODE)?;
@@ -106,11 +104,8 @@ impl IS31FL3731 {
         Ok(())
     }
 
-    // TESTED: works
     fn i2c_write_reg(&self, reg: u8, data: &[u8]) -> Result<()> {
-        let mut buf = vec![reg];
-        buf.extend_from_slice(data);
-        self.i2c.block_write(self.address, &buf)?;
+        self.i2c.block_write(reg, data)?;
         Ok(())
     }
 }
