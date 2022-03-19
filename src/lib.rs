@@ -3,12 +3,7 @@
 use embedded_hal::blocking::delay::DelayMs;
 use embedded_hal::blocking::i2c::Write;
 
-#[derive(Clone, Copy, Debug)]
-pub enum Error<I2cError> {
-    I2cError(I2cError),
-}
-
-pub struct Driver<I2C, DEL> {
+pub struct IS31FL3731<I2C, DEL> {
     pub i2c: I2C,
     pub delay: DEL,
     pub address: u8,
@@ -17,7 +12,7 @@ pub struct Driver<I2C, DEL> {
     pub height: u8,
 }
 
-impl<I2C, DEL, I2cError> Driver<I2C, DEL>
+impl<I2C, DEL, I2cError> IS31FL3731<I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
     DEL: DelayMs<u8>,
@@ -51,6 +46,22 @@ where
         }
         self.audio_sync(false)?;
         self.sleep(false)?;
+        Ok(())
+    }
+
+    pub fn pixel(&mut self, x: u8, y: u8, brightness: u8) -> Result<(), Error<I2cError>> {
+        if x > self.width {
+            return Err(Error::InvalidLocation(x));
+        }
+        if y > self.height {
+            return Err(Error::InvalidLocation(y));
+        }
+        let pixel = if x >= 8 {
+            (x - 6) * 16 - (y + 1)
+        } else {
+            (x + 1) * 16 + (7 - y)
+        };
+        self.write_register(self.frame, addresses::COLOR_OFFSET + pixel, brightness)?;
         Ok(())
     }
 
@@ -131,4 +142,16 @@ mod addresses {
     pub const ENABLE_OFFSET: u8 = 0x00;
     pub const BLINK_OFFSET: u8 = 0x12;
     pub const COLOR_OFFSET: u8 = 0x24;
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum Error<I2cError> {
+    I2cError(I2cError),
+    InvalidLocation(u8),
+}
+
+impl<E> From<E> for Error<E> {
+    fn from(error: E) -> Self {
+        Error::I2cError(error)
+    }
 }
