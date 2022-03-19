@@ -1,10 +1,10 @@
 [package]
 name = "is31fl3731"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["Matt Gleich"]
-categories = ["embedded", "no-std", "hardware-support"]
-description = "Platform agnostic driver for the IS31FL3731 Charlieplex IC"
+categories = ["embedded", "no-std", "driver"]
+description = "Platform agnostic driver for the IS31FL3731 IC"
 license = "MIT"
 repository = "https://github.com/gleich/is31fl3731"
 readme = "README.md"
