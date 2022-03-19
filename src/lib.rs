@@ -1,5 +1,7 @@
 #![no_std]
 
+pub mod devices;
+
 use embedded_hal::blocking::delay::DelayMs;
 use embedded_hal::blocking::i2c::Write;
 
@@ -10,6 +12,7 @@ pub struct IS31FL3731<I2C, DEL> {
     pub frame: u8,
     pub width: u8,
     pub height: u8,
+    pub calc_pixel: fn(x: u8, y: u8) -> u8,
 }
 
 impl<I2C, DEL, I2cError> IS31FL3731<I2C, DEL>
@@ -56,11 +59,7 @@ where
         if y > self.height {
             return Err(Error::InvalidLocation(y));
         }
-        let pixel = if x >= 8 {
-            (x - 6) * 16 - (y + 1)
-        } else {
-            (x + 1) * 16 + (7 - y)
-        };
+        let pixel = (self.calc_pixel)(x, y);
         self.write_register(self.frame, addresses::COLOR_OFFSET + pixel, brightness)?;
         Ok(())
     }

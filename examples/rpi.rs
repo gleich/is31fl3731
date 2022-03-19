@@ -1,17 +1,10 @@
 use std::{thread, time::Duration};
 
-use is31fl3731::IS31FL3731;
-use rppal::i2c::I2c;
+use is31fl3731::{devices::CharlieBonnet, IS31FL3731};
+use rppal::{hal, i2c::I2c};
 
 fn main() {
-    let mut ic = IS31FL3731 {
-        i2c: I2c::new().expect("Failed to load i2c bus"),
-        delay: rppal::hal::Delay,
-        address: 0x74,
-        frame: 0,
-        width: 16,
-        height: 8,
-    };
+    let mut ic = CharlieBonnet::configure(I2c::new().expect("Failed to load i2c bus"), hal::Delay);
     ic.setup().expect("Failed to setup IC");
 
     for x in 0..16 {
