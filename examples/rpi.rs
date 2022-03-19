@@ -50,7 +50,6 @@ impl IS31FL3731 {
     }
 
     pub fn setup(&mut self) -> Result<()> {
-        self.i2c.set_slave_address(self.address)?;
         self.sleep(true)?;
         thread::sleep(Duration::from_millis(10));
         self.mode(addresses::PICTURE_MODE)?;
