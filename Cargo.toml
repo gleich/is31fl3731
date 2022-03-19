@@ -13,7 +13,17 @@ readme = "README.md"
 embedded-hal = "0.2.6"
 
 [dev-dependencies]
-panic-semihosting = "0.5.6"
-cortex-m-rt = "0.7.1"
 rppal = {version = "0.13.1", features = ["hal"]}
-anyhow = "1.0.53"
+
+[features]
+charlie_bonnet = []
+charlie_wing = []
+keybow_2040 = []
+led_shim = []
+matrix = []
+rgb_matrix_5x5 = []
+scroll_phat_hd = []
+
+[[example]]
+name = "rpi"
+required-features = ["charlie_bonnet"]

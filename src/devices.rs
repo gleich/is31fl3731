@@ -1,21 +1,32 @@
+#[allow(unused_imports)]
 use crate::{Error, IS31FL3731};
+#[allow(unused_imports)]
 use embedded_hal::blocking::delay::DelayMs;
+#[allow(unused_imports)]
 use embedded_hal::blocking::i2c::Write;
 
+#[cfg(feature = "charlie_bonnet")]
 pub struct CharlieBonnet;
+#[cfg(feature = "charlie_wing")]
 pub struct CharlieWing;
+#[cfg(feature = "keybow_2040")]
 pub struct Keybow2040<I2C, DEL> {
     device: IS31FL3731<I2C, DEL>,
 }
+#[cfg(feature = "led_shim")]
 pub struct LEDShim<I2C, DEL> {
     device: IS31FL3731<I2C, DEL>,
 }
+#[cfg(feature = "matrix")]
 pub struct Matrix;
+#[cfg(feature = "rgb_matrix_5x5")]
 pub struct RGBMatrix5x5<I2C, DEL> {
     device: IS31FL3731<I2C, DEL>,
 }
+#[cfg(feature = "scroll_phat_hd")]
 pub struct ScrollPhatHD;
 
+#[cfg(feature = "charlie_bonnet")]
 impl CharlieBonnet {
     pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
         IS31FL3731 {
@@ -36,6 +47,7 @@ impl CharlieBonnet {
     }
 }
 
+#[cfg(feature = "charlie_wing")]
 impl CharlieWing {
     pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
         IS31FL3731 {
@@ -60,6 +72,7 @@ impl CharlieWing {
     }
 }
 
+#[cfg(feature = "keybow_2040")]
 impl<I2C, DEL, I2cError> Keybow2040<I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
@@ -108,6 +121,7 @@ where
     }
 }
 
+#[cfg(feature = "led_shim")]
 impl<I2C, DEL, I2cError> LEDShim<I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
@@ -208,6 +222,7 @@ where
     }
 }
 
+#[cfg(feature = "matrix")]
 impl Matrix {
     pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
         IS31FL3731 {
@@ -222,6 +237,7 @@ impl Matrix {
     }
 }
 
+#[cfg(feature = "rgb_matrix_5x5")]
 impl<I2C, DEL, I2cError> RGBMatrix5x5<I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
@@ -279,6 +295,7 @@ where
     }
 }
 
+#[cfg(feature = "scroll_phat_hd")]
 impl ScrollPhatHD {
     pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
         IS31FL3731 {

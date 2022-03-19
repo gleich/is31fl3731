@@ -1,6 +1,6 @@
 use std::{thread, time::Duration};
 
-use is31fl3731::{devices::CharlieBonnet, IS31FL3731};
+use is31fl3731::devices::CharlieBonnet;
 use rppal::{hal, i2c::I2c};
 
 fn main() {
