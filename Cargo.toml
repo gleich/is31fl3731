@@ -1,6 +1,6 @@
 [package] 
 name = "is31fl3731"
-version = "0.0.2"
+version = "0.0.3"
 edition = "2021"
 authors = ["Matt Gleich"]
 categories = ["embedded", "no-std"]
