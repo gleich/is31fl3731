@@ -5,9 +5,9 @@ pub mod devices;
 use embedded_hal::blocking::delay::DelayMs;
 use embedded_hal::blocking::i2c::Write;
 
-pub struct IS31FL3731<I2C, DEL> {
+pub struct IS31FL3731<'a, I2C, DEL> {
     pub i2c: I2C,
-    pub delay: DEL,
+    pub delay: &'a mut DEL,
     pub address: u8,
     pub frame: u8,
     pub width: u8,
@@ -15,7 +15,7 @@ pub struct IS31FL3731<I2C, DEL> {
     pub calc_pixel: fn(x: u8, y: u8) -> u8,
 }
 
-impl<I2C, DEL, I2cError> IS31FL3731<I2C, DEL>
+impl<I2C, DEL, I2cError> IS31FL3731<'_, I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
     DEL: DelayMs<u8>,
