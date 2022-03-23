@@ -1,9 +1,9 @@
-[package]
+[package] 
 name = "is31fl3731"
 version = "0.0.2"
 edition = "2021"
 authors = ["Matt Gleich"]
-categories = ["embedded", "no-std", "driver"]
+categories = ["embedded", "no-std"]
 description = "Platform agnostic driver for the IS31FL3731 IC"
 license = "MIT"
 repository = "https://github.com/gleich/is31fl3731"

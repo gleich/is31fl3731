@@ -10,25 +10,25 @@ pub struct CharlieBonnet;
 #[cfg(feature = "charlie_wing")]
 pub struct CharlieWing;
 #[cfg(feature = "keybow_2040")]
-pub struct Keybow2040<I2C, DEL> {
-    device: IS31FL3731<I2C, DEL>,
+pub struct Keybow2040<'a, I2C, DEL> {
+    device: IS31FL3731<'a, I2C, DEL>,
 }
 #[cfg(feature = "led_shim")]
-pub struct LEDShim<I2C, DEL> {
-    device: IS31FL3731<I2C, DEL>,
+pub struct LEDShim<'a, I2C, DEL> {
+    device: IS31FL3731<'a, I2C, DEL>,
 }
 #[cfg(feature = "matrix")]
 pub struct Matrix;
 #[cfg(feature = "rgb_matrix_5x5")]
-pub struct RGBMatrix5x5<I2C, DEL> {
-    device: IS31FL3731<I2C, DEL>,
+pub struct RGBMatrix5x5<'a, I2C, DEL> {
+    device: IS31FL3731<'a, I2C, DEL>,
 }
 #[cfg(feature = "scroll_phat_hd")]
 pub struct ScrollPhatHD;
 
 #[cfg(feature = "charlie_bonnet")]
 impl CharlieBonnet {
-    pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
+    pub fn configure<'a, I2C, DEL>(i2c: I2C, delay: &'a mut DEL) -> IS31FL3731<'_, I2C, DEL> {
         IS31FL3731 {
             i2c,
             delay,
@@ -49,7 +49,7 @@ impl CharlieBonnet {
 
 #[cfg(feature = "charlie_wing")]
 impl CharlieWing {
-    pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
+    pub fn configure<'a, I2C, DEL>(i2c: I2C, delay: &'a mut DEL) -> IS31FL3731<'_, I2C, DEL> {
         IS31FL3731 {
             i2c,
             delay,
@@ -73,12 +73,12 @@ impl CharlieWing {
 }
 
 #[cfg(feature = "keybow_2040")]
-impl<I2C, DEL, I2cError> Keybow2040<I2C, DEL>
+impl<'a, I2C, DEL, I2cError> Keybow2040<'a, I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
     DEL: DelayMs<u8>,
 {
-    pub fn configure(i2c: I2C, delay: DEL) -> Self {
+    pub fn configure(i2c: I2C, delay: &'a mut DEL) -> Self {
         Self {
             device: IS31FL3731 {
                 i2c,
@@ -122,12 +122,12 @@ where
 }
 
 #[cfg(feature = "led_shim")]
-impl<I2C, DEL, I2cError> LEDShim<I2C, DEL>
+impl<'a, I2C, DEL, I2cError> LEDShim<'a, I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
     DEL: DelayMs<u8>,
 {
-    pub fn configure(i2c: I2C, delay: DEL) -> Self {
+    pub fn configure(i2c: I2C, delay: &'a mut DEL) -> Self {
         Self {
             device: IS31FL3731 {
                 i2c,
@@ -213,7 +213,6 @@ where
             },
         }
     }
-
     pub fn pixel_rgb(&mut self, x: u8, r: u8, g: u8, b: u8) -> Result<(), Error<I2cError>> {
         self.device.pixel(x, 0, r)?;
         self.device.pixel(x, 1, g)?;
@@ -224,7 +223,7 @@ where
 
 #[cfg(feature = "matrix")]
 impl Matrix {
-    pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
+    pub fn configure<'a, I2C, DEL>(i2c: I2C, delay: &'a mut DEL) -> IS31FL3731<'_, I2C, DEL> {
         IS31FL3731 {
             i2c,
             delay,
@@ -238,12 +237,12 @@ impl Matrix {
 }
 
 #[cfg(feature = "rgb_matrix_5x5")]
-impl<I2C, DEL, I2cError> RGBMatrix5x5<I2C, DEL>
+impl<'a, I2C, DEL, I2cError> RGBMatrix5x5<'a, I2C, DEL>
 where
     I2C: Write<Error = I2cError>,
     DEL: DelayMs<u8>,
 {
-    pub fn configure(i2c: I2C, delay: DEL) -> Self {
+    pub fn configure(i2c: I2C, delay: &'a mut DEL) -> Self {
         Self {
             device: IS31FL3731 {
                 i2c,
@@ -297,7 +296,7 @@ where
 
 #[cfg(feature = "scroll_phat_hd")]
 impl ScrollPhatHD {
-    pub fn configure<I2C, DEL>(i2c: I2C, delay: DEL) -> IS31FL3731<I2C, DEL> {
+    pub fn configure<'a, I2C, DEL>(i2c: I2C, delay: &'a mut DEL) -> IS31FL3731<'_, I2C, DEL> {
         IS31FL3731 {
             i2c,
             delay,
