@@ -1,5 +1,6 @@
 #![no_std]
 
+/// Preconfigured devices
 pub mod devices;
 
 use embedded_hal::blocking::delay::DelayMs;
