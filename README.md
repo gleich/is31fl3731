@@ -4,6 +4,9 @@
 [![Crates.io](https://img.shields.io/crates/d/is31fl3731)](https://crates.io/crates/is31fl3731)
 [![docs.rs](https://img.shields.io/docsrs/is31fl3731)](https://docs.rs/is31fl3731/latest/is31fl3731/)
 
+[![lint](https://github.com/gleich/is31fl3731/actions/workflows/lint.yml/badge.svg)](https://github.com/gleich/is31fl3731/actions/workflows/lint.yml)
+[![build](https://github.com/gleich/is31fl3731/actions/workflows/build.yml/badge.svg)](https://github.com/gleich/is31fl3731/actions/workflows/build.yml)
+
 Driver for [Lumissil Microsystem's IS31FL3731 integrated circuit](https://www.lumissil.com/assets/pdf/core/IS31FL3731_DS.pdf). Some of the major features of this library are:
 
 1. Use of embedded HAL traits (works with any embedded device that supports the required traits). This means that this driver is platform agnostic.
