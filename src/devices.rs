@@ -11,17 +11,17 @@ pub struct CharlieBonnet;
 pub struct CharlieWing;
 #[cfg(feature = "keybow_2040")]
 pub struct Keybow2040<I2C> {
-    device: IS31FL3731<I2C>,
+    pub device: IS31FL3731<I2C>,
 }
 #[cfg(feature = "led_shim")]
 pub struct LEDShim<I2C> {
-    device: IS31FL3731<I2C>,
+    pub device: IS31FL3731<I2C>,
 }
 #[cfg(feature = "matrix")]
 pub struct Matrix;
 #[cfg(feature = "rgb_matrix_5x5")]
 pub struct RGBMatrix5x5<I2C> {
-    device: IS31FL3731<I2C>,
+    pub device: IS31FL3731<I2C>,
 }
 #[cfg(feature = "scroll_phat_hd")]
 pub struct ScrollPhatHD;
@@ -75,35 +75,33 @@ impl<I2C, I2cError> Keybow2040<I2C>
 where
     I2C: Write<Error = I2cError>,
 {
-    pub fn configure(i2c: I2C) -> Self {
-        Self {
-            device: IS31FL3731 {
-                i2c,
-                address: 0x74,
-                frame: 0,
-                width: 16,
-                height: 3,
-                calc_pixel: |x: u8, y: u8| -> u8 {
-                    let lookup = [
-                        [120, 88, 104],
-                        [136, 40, 72],
-                        [112, 80, 96],
-                        [128, 32, 64],
-                        [121, 89, 105],
-                        [137, 41, 73],
-                        [113, 81, 97],
-                        [129, 33, 65],
-                        [122, 90, 106],
-                        [138, 25, 74],
-                        [114, 82, 98],
-                        [130, 17, 66],
-                        [123, 91, 107],
-                        [139, 26, 75],
-                        [115, 83, 99],
-                        [131, 18, 67],
-                    ];
-                    lookup[x as usize][y as usize]
-                },
+    pub fn configure(i2c: I2C) -> IS31FL3731<I2C> {
+        IS31FL3731 {
+            i2c,
+            address: 0x74,
+            frame: 0,
+            width: 16,
+            height: 3,
+            calc_pixel: |x: u8, y: u8| -> u8 {
+                let lookup = [
+                    [120, 88, 104],
+                    [136, 40, 72],
+                    [112, 80, 96],
+                    [128, 32, 64],
+                    [121, 89, 105],
+                    [137, 41, 73],
+                    [113, 81, 97],
+                    [129, 33, 65],
+                    [122, 90, 106],
+                    [138, 25, 74],
+                    [114, 82, 98],
+                    [130, 17, 66],
+                    [123, 91, 107],
+                    [139, 26, 75],
+                    [115, 83, 99],
+                    [131, 18, 67],
+                ];
+                lookup[x as usize][y as usize]
             },
         }
     }
