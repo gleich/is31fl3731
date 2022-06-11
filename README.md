@@ -18,13 +18,13 @@ Driver for [Lumissil Microsystem's IS31FL3731 integrated circuit](https://www.lu
 To install this driver in your project add the following line to your `Cargo.toml`'s `dependencies` table:
 
 ```toml
-is31fl3731 = "1.0.1"
+is31fl3731 = "1.0.2"
 ```
 
 By default this version will only contain the core driver. To use a preconfigured device, such as the [Adafruit CharliePlex LED Matrix Bonnet](https://www.adafruit.com/product/3467), you would need to change this line to include that device:
 
 ```toml
-is31fl3732 = { version = "1.0.1", features = ["charlie_bonnet"] }
+is31fl3732 = { version = "1.0.2", features = ["charlie_bonnet"] }
 ```
 
 ## Functionality & Plans
