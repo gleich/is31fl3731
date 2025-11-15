@@ -23,6 +23,7 @@ led_shim = []
 matrix = []
 rgb_matrix_5x5 = []
 scroll_phat_hd = []
+pimoroni_rgb_matrix_5x5 = []
 
 [[example]]
 name = "rpi"
