@@ -1,9 +1,13 @@
 #[allow(unused_imports)]
 use crate::{Error, IS31FL3731};
 #[allow(unused_imports)]
-use embedded_hal::blocking::delay::DelayMs;
+//use embedded_hal::blocking::delay::DelayMs;
+use hal::delay::DelayNs;
 #[allow(unused_imports)]
-use embedded_hal::blocking::i2c::Write;
+//use embedded_hal::blocking::i2c::Write;
+use hal::i2c::I2c;
+
+use embedded_hal as hal;
 
 #[cfg(feature = "charlie_bonnet")]
 pub struct CharlieBonnet;
@@ -25,6 +29,11 @@ pub struct RGBMatrix5x5<I2C> {
 }
 #[cfg(feature = "scroll_phat_hd")]
 pub struct ScrollPhatHD;
+
+#[cfg(feature = "pimoroni_rgb_matrix_5x5")]
+pub struct PimoroniRGBMatrix5x5<I2C> {
+    pub device: IS31FL3731<I2C>,
+}
 
 #[cfg(feature = "charlie_bonnet")]
 impl CharlieBonnet {
@@ -120,7 +129,8 @@ where
 #[cfg(feature = "led_shim")]
 impl<I2C, I2cError> LEDShim<I2C>
 where
-    I2C: Write<Error = I2cError>,
+    //I2C: Write<Error = I2cError>,
+    I2C: I2c<Error = I2cError>,
 {
     pub fn configure(i2c: I2C) -> Self {
         Self {
@@ -232,7 +242,8 @@ impl Matrix {
 #[cfg(feature = "rgb_matrix_5x5")]
 impl<I2C, I2cError> RGBMatrix5x5<I2C>
 where
-    I2C: Write<Error = I2cError>,
+    //I2C: Write<Error = I2cError>,
+    I2C: I2c<Error = I2cError>,
 {
     pub fn configure(i2c: I2C) -> Self {
         Self {
@@ -307,5 +318,71 @@ impl ScrollPhatHD {
                 x * 16 + y
             },
         }
+    }
+}
+
+
+#[cfg(feature = "pimoroni_rgb_matrix_5x5")]
+impl<I2C, I2cError> PimoroniRGBMatrix5x5<I2C>
+where
+    //I2C: Write<Error = I2cError>,
+    I2C: I2c<Error = I2cError>,
+{
+    pub fn configure(i2c: I2C) -> Self {
+        Self {
+            device: IS31FL3731 {
+                i2c,                
+                address: 0x74,                
+                frame: 0,
+                width: 25,
+                height: 3,
+                calc_pixel: |x: u8, y: u8| -> u8 {
+                    let lookup = [
+                        [118, 69, 85],
+                        [117, 68, 101],
+                        [116, 84, 100],
+                        [115, 83, 99],
+                        [114, 82, 98],
+
+                        [132, 19, 35],
+                        [133, 20, 36],
+                        [134, 21, 37],
+                        [112, 80, 96],
+                        [113, 81, 97],
+                        
+                        [131, 18, 34],
+                        [130, 17, 50],
+                        [129, 33, 49],
+                        [128, 32, 48],
+                        [127, 47, 63],
+                        
+                        [125, 28, 44],
+                        [124, 27, 43],
+                        [123, 26, 42],
+                        [122, 25, 58],
+                        [121, 41, 57],
+                        
+                        [126, 29, 45],
+                        [15, 95, 111],
+                        [8, 89, 105],
+                        [9, 90, 106],
+                        [10, 91, 107],
+                        
+                        //[11, 92, 108],
+                        //[12, 76, 109],
+                        //[13, 77, 93],
+                    ];
+                    lookup[x as usize][y as usize]
+                },
+            },
+        }
+    }
+
+    pub fn pixel_rgb(&mut self, x: u8, y: u8, r: u8, g: u8, b: u8) -> Result<(), Error<I2cError>> {    
+        let x = x + y * 5;
+        self.device.pixel(x, 0, r)?;
+        self.device.pixel(x, 1, g)?;
+        self.device.pixel(x, 2, b)?;
+        Ok(())
     }
 }

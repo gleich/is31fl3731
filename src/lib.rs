@@ -4,8 +4,12 @@
 /// Preconfigured devices
 pub mod devices;
 
-use embedded_hal::blocking::delay::DelayMs;
-use embedded_hal::blocking::i2c::Write;
+//use embedded_hal::blocking::delay::DelayMs;
+//use embedded_hal::blocking::i2c::Write;
+
+use embedded_hal as hal;
+use hal::i2c::I2c;
+use hal::delay::DelayNs;
 
 /// A struct to integrate with a new IS31FL3731 powered device.
 pub struct IS31FL3731<I2C> {
@@ -26,7 +30,8 @@ pub struct IS31FL3731<I2C> {
 
 impl<I2C, I2cError> IS31FL3731<I2C>
 where
-    I2C: Write<Error = I2cError>,
+    //I2C: Write<Error = I2cError>,
+    I2C: I2c<Error = I2cError>,
 {
     /// Fill the display with a single brightness. The brightness should range from 0 to 255. The reason that blink is an optional is
     /// because you can either set blink to true, set blink to false, or not set blink at all. The
@@ -58,7 +63,8 @@ where
     /// 2. All frames will be cleared.
     /// 3. Audio syncing will be turned off.
     /// 4. The chip will be told that it's being turned back on.
-    pub fn setup<DEL: DelayMs<u8>>(&mut self, delay: &mut DEL) -> Result<(), Error<I2cError>> {
+    //pub fn setup<DEL: DelayMs<u8>>(&mut self, delay: &mut DEL) -> Result<(), Error<I2cError>> {
+    pub fn setup<DEL: DelayNs>(&mut self, delay: &mut DEL) -> Result<(), Error<I2cError>> {
         self.sleep(true)?;
         delay.delay_ms(10);
         self.mode(addresses::PICTURE_MODE)?;
@@ -110,7 +116,8 @@ where
     /// Send a reset message to the slave device. Delay is something that your device's HAL should
     /// provide which allows for the process to sleep for a certain amount of time (in this case 10
     /// MS to perform a reset).
-    pub fn reset<DEL: DelayMs<u8>>(&mut self, delay: &mut DEL) -> Result<(), I2cError> {
+    //pub fn reset<DEL: DelayMs<u8>>(&mut self, delay: &mut DEL) -> Result<(), I2cError> {
+    pub fn reset<DEL: DelayNs>(&mut self, delay: &mut DEL) -> Result<(), I2cError> {
         self.sleep(true)?;
         delay.delay_ms(10);
         self.sleep(false)?;
@@ -144,6 +151,20 @@ where
         Ok(())
     }
 
+    /// Fill the display with a pattern of different brightness values, where the brightness should range from 0 to 255. 
+    /// Blink is not being set.
+    pub fn fill_pattern(&mut self, pattern: &[[u8; 24];6], brightness: u8, frame: u8) -> Result<(), I2cError> {
+        self.bank(frame)?;
+        let mut payload = [brightness; 25];
+        for row in 0..6 {
+            payload[0] = addresses::COLOR_OFFSET + row * 24;
+            payload[1..].copy_from_slice(&pattern[row as usize]);
+            self.i2c.write(self.address, &payload)?;
+        }
+        Ok(())
+    }
+
+
     fn write_register(&mut self, bank: u8, register: u8, value: u8) -> Result<(), I2cError> {
         self.bank(bank)?;
         self.i2c.write(self.address, &[register, value])?;
@@ -155,6 +176,9 @@ where
             .write(self.address, &[addresses::BANK_ADDRESS, bank])?;
         Ok(())
     }
+
+
+    
 }
 
 /// See the [data sheet](https://www.lumissil.com/assets/pdf/core/IS31FL3731_DS.pdf)
