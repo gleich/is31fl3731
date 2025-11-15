@@ -4,8 +4,12 @@
 /// Preconfigured devices
 pub mod devices;
 
-use embedded_hal::blocking::delay::DelayMs;
-use embedded_hal::blocking::i2c::Write;
+//use embedded_hal::blocking::delay::DelayMs;
+//use embedded_hal::blocking::i2c::Write;
+
+use embedded_hal as hal;
+use hal::i2c::I2c;
+use hal::delay::DelayNs;
 
 /// A struct to integrate with a new IS31FL3731 powered device.
 pub struct IS31FL3731<I2C> {

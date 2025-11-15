@@ -13,7 +13,7 @@ readme = "README.md"
 embedded-hal = "1.0.0"
 
 [dev-dependencies]
-rppal = {version = "0.13.1", features = ["hal"]}
+#rppal = {version = "0.13.1", features = ["hal"]}
 
 [features]
 charlie_bonnet = []
