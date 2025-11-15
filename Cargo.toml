@@ -10,7 +10,7 @@ repository = "https://github.com/gleich/is31fl3731"
 readme = "README.md"
 
 [dependencies]
-embedded-hal = "0.2.6"
+embedded-hal = "1.0.0"
 
 [dev-dependencies]
 rppal = {version = "0.13.1", features = ["hal"]}
