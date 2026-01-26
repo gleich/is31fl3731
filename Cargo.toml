@@ -10,10 +10,10 @@ repository = "https://github.com/gleich/is31fl3731"
 readme = "README.md"
 
 [dependencies]
-embedded-hal = "0.2.6"
+embedded-hal = "1.0.0"
 
 [dev-dependencies]
-rppal = {version = "0.13.1", features = ["hal"]}
+#rppal = {version = "0.13.1", features = ["hal"]}
 
 [features]
 charlie_bonnet = []
@@ -23,6 +23,7 @@ led_shim = []
 matrix = []
 rgb_matrix_5x5 = []
 scroll_phat_hd = []
+pimoroni_rgb_matrix_5x5 = []
 
 [[example]]
 name = "rpi"
